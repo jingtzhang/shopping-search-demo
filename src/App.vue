@@ -16,7 +16,7 @@
     </div>
 
     <a-list item-layout="vertical" size="large" :data-source="results">
-      <a-list-item slot="renderItem" key="item.title" slot-scope="item">
+      <a-list-item slot="renderItem" key="item.title + " slot-scope="item">
         <img
             v-if="results.length > 0"
             slot="extra"
@@ -41,7 +41,8 @@ export default {
   },
   data() {
     return {
-      url: 'http://localhost:61288/shopping_channel/_search',
+      url: 'http://localhost:8888/test-4/_search',
+      hits: 0,
       results: [],
       suggested: false,
       suggestion: [],
@@ -59,10 +60,58 @@ export default {
   methods: {
     onSearch(value) {
       this.suggested = false
+      // let query = {
+      //   "query": {
+      //     "match": {
+      //       "title": {
+      //         "query": value,
+      //         "minimum_should_match": "80%",
+      //          //"operator": "and"
+      //       }
+      //     },
+      //   }
+      // };
       let query = {
         "query": {
-          "match": {
-            "title": value
+          "bool": {
+            "must": [
+              {
+                "match":
+                    {
+                      "title": {
+                        "query": value,
+                        "minimum_should_match": "90%"
+                      }
+                    },
+              },
+              {
+                "match":
+                    {
+                      "title.ngram": {
+                        "query": value,
+                        "minimum_should_match": "90%"
+                      }
+                    },
+              }
+            ],
+            "should": [
+                  {
+                    "match": {
+                      "second_category": {
+                        "query": value,
+                        "operator": "and"
+                      }
+                    }
+                  },
+              {
+                "match": {
+                  "third_category": {
+                    "query": value,
+                    "operator": "and"
+                  }
+                }
+              }
+              ]
           }
         }
       };
@@ -72,7 +121,8 @@ export default {
           source_content_type: 'application/json'
         }
       }).then((response) => {
-        console.log(response.data.hits.hits.length)
+        console.log(response.data.hits.total['value'])
+        this.hits = response.data.hits.total['value']
         this.results = response.data.hits.hits
         // if need suggestion
         if(this.results == null || this.results.length === 0) {
