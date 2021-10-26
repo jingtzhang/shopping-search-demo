@@ -27,7 +27,7 @@
         <a-list-item-meta :description="item._source.second_category + item._source.third_category">
           <a slot="title">{{ item._source.title }}</a>
         </a-list-item-meta>
-        <div style="margin: 0 auto; width:600px;" class="description">{{ item._source.description | ellipsis }}</div>
+        <div style="margin: 0 auto; width:600px;" class="itemId">{{ "item_id: " + item._source.item_id | ellipsis }}</div>
       </a-list-item>
     </a-list>
 
@@ -41,7 +41,8 @@ export default {
   },
   data() {
     return {
-      url: 'http://localhost:8888/test-4/_search',
+      // url: 'http://es-nlb.dynamic-ads.smartnews.net:9200/test-1/_search',
+      url: 'http://localhost:8888/test-1/_search',
       hits: 0,
       results: [],
       suggested: false,
@@ -95,14 +96,14 @@ export default {
               }
             ],
             "should": [
-                  {
-                    "match": {
-                      "second_category": {
-                        "query": value,
-                        "operator": "and"
-                      }
-                    }
-                  },
+              {
+                "match": {
+                  "second_category": {
+                    "query": value,
+                    "operator": "and"
+                  }
+                }
+              },
               {
                 "match": {
                   "third_category": {
@@ -111,7 +112,7 @@ export default {
                   }
                 }
               }
-              ]
+            ]
           }
         }
       };
